@@ -2,17 +2,16 @@ package com.github.lanalebedeva.lifecycle
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
 
 private const val TAG = "mainActivity"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
-        override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-
-        super.onCreate(savedInstanceState, persistentState)
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         val nameFunThrowable = Throwable().stackTrace[0].methodName
         Log.d(TAG, nameFunThrowable)
         val nameFunThread = Thread.currentThread().stackTrace[2].methodName
@@ -22,7 +21,14 @@ class MainActivity : AppCompatActivity() {
         val nameFunObject = object {}.javaClass.enclosingMethod?.name
         Log.d(TAG, nameFunObject.toString())
         Log.d(TAG,  "lifecycle.currentState = ${lifecycle.currentState.name}")
-//        lifecycle.addObserver(MyObserver())
+        lifecycle.addObserver(MyObserver())
+        Log.d(TAG,  "lifecycle.currentState = ${lifecycle.currentState.name}")
+        if (savedInstanceState == null) {
+            supportFragmentManager.commit {
+                setReorderingAllowed(true)
+                add<MyFragment>(R.id.fragment_container_view)
+            }
+        }
     }
 
     override fun onStart() {
@@ -30,7 +36,6 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, nameFunThread)
         super.onStart()
         Log.d(TAG,  "lifecycle.currentState = ${lifecycle.currentState.name}")
-        lifecycle.addObserver(MyObserver())
     }
 
     override fun onResume() {
